@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -11,24 +10,24 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<dynamic> all_products = [];
-  List<dynamic> filtered_products = [];
-  Set<int> favoriteProductIds = {};
+  List<dynamic> allProducts = [];
+  List<dynamic> filteredProducts = [];
+  List<dynamic> favoriteProductIds = [];
+  bool showingFavorites = false;
 
   Future<void> fetchProducts({String? query}) async {
     final response = await http.get(Uri.parse('https://fakestoreapi.com/products'));
     if (response.statusCode == 200) {
       setState(() {
-        all_products = json.decode(response.body);
+        allProducts = json.decode(response.body);
+        filteredProducts = allProducts;
       });
+
+      if (query != null) {
+        filterProducts(query);
+      }
     } else {
       throw Exception('Failed to load products');
-    }
-    
-    if (query != null) {
-      filterProducts(query);
-    } else {
-      filtered_products = all_products;
     }
   }
 
@@ -48,17 +47,34 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void toggleFavoritesView() {
+    setState(() {
+      showingFavorites = !showingFavorites;
+    });
+  }
+
+  List<dynamic> get productsToShow {
+    if (showingFavorites) {
+      return filteredProducts.where((product) => favoriteProductIds.contains(product['id'])).toList();
+    } else {
+      return filteredProducts;
+    }
+  }
+
   void filterProducts(String query) {
     setState(() {
-      filtered_products = all_products.where((product) {
+      filteredProducts = allProducts.where((product) {
         final title = product['title'].toLowerCase();
         return title.contains(query.toLowerCase());
       }).toList();
     });
   }
 
+  
+
   @override
   Widget build(BuildContext context) {
+    final products = productsToShow;
     return Scaffold(
       backgroundColor: const Color(0xFFF4F4F4),
       body: SafeArea(
@@ -70,13 +86,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   TextField(
-                    onSubmitted: (value)
-                    {
-                       fetchProducts(query: value);
+                    onChanged: (value) {
+                      filterProducts(value);
                     },
                     decoration: InputDecoration(
                       hintText: 'Search product',
-                      prefixIcon: const Icon(Icons.search),
+                      prefixIcon: const Icon(Icons.search, size: 40,),
                       filled: true,
                       fillColor: Colors.white,
                       contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
@@ -86,20 +101,26 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 5),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text(
+                    children: [
+                      const Text(
                         'Products',
-                        style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'Bold Monday'),
                       ),
-                      Icon(Icons.favorite_border, size: 28),
+                      IconButton(
+                        icon: Icon(
+                          showingFavorites ? Icons.favorite : Icons.favorite_border,
+                          size: 40,
+                          color: Colors.black,
+                        ),
+                        onPressed: toggleFavoritesView,
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 6),
                   Text(
-                    '${filtered_products.length} products found',
+                    '${products.length} products found',
                     style: const TextStyle(fontSize: 14, color: Colors.black54),
                   ),
                 ],
@@ -109,18 +130,18 @@ class _HomeScreenState extends State<HomeScreen> {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: all_products.isEmpty
+                child: allProducts.isEmpty
                     ? const Center(child: CircularProgressIndicator())
                     : GridView.builder(
-                        itemCount: filtered_products.length,
+                        itemCount: products.length,
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
-                          childAspectRatio: 0.75,
+                          childAspectRatio: 0.70,
                           crossAxisSpacing: 20,
                           mainAxisSpacing: 20,
                         ),
                         itemBuilder: (context, index) {
-                          final product = filtered_products[index];
+                          final product = products[index];
                           final productId = product['id'];
                           final isFavorite = favoriteProductIds.contains(productId);
                           final firstWordTitle = product['title'].split(' ')[0];
@@ -137,6 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
+                                      const SizedBox(height: 5),
                                       Center(
                                         child: Image.network(
                                           product['image'],
@@ -147,12 +169,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                       const SizedBox(height: 12),
                                       Text(
-                                        firstWordTitle ,
+                                        firstWordTitle,
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16,
                                         ),
                                       ),
+                                      const SizedBox(height: 10),
                                       Text(
                                         product['title'],
                                         maxLines: 2,
@@ -162,7 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           color: Colors.black87,
                                         ),
                                       ),
-                                      
+                                      const Spacer(),
                                       Text(
                                         "\$${product['price']}",
                                         style: const TextStyle(
