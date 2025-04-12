@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:shop_app/pages/product_screen.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -107,11 +109,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       const Text(
                         'Products',
-                        style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'Bold Monday'),
+                        style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'Bold '),
                       ),
                       IconButton(
                         icon: Icon(
-                          showingFavorites ? Icons.favorite : Icons.favorite_border,
+                          showingFavorites ? Icons.favorite : Icons.favorite_outline_sharp,
                           size: 40,
                           color: Colors.black,
                         ),
@@ -146,7 +148,20 @@ class _HomeScreenState extends State<HomeScreen> {
                           final isFavorite = favoriteProductIds.contains(productId);
                           final firstWordTitle = product['title'].split(' ')[0];
 
-                          return Container(
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ProductScreen(
+                                    product: product,
+                                    isFavorite: isFavorite,
+                                    onToggleFavorite: () => toggleFavorite(productId),
+                                  ),
+                                ),
+                              );
+                            },
+                            child:Container(
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(16),
@@ -202,12 +217,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: InkWell(
                                     onTap: () => toggleFavorite(productId),
                                     child: Icon(
-                                      isFavorite ? Icons.favorite : Icons.favorite_border,
+                                      isFavorite ? Icons.favorite : Icons.favorite_outline_sharp,
                                       color: Colors.black,
                                     ),
                                   ),
                                 ),
                               ],
+                            ),
                             ),
                           );
                         },
