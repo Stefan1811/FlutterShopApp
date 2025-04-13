@@ -109,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       const Text(
                         'Products',
-                        style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'Bold '),
+                        style: TextStyle(fontSize: 40, color: Colors.black, fontFamily: 'BiloExtraBold', fontWeight: FontWeight.bold),
                       ),
                       IconButton(
                         icon: Icon(
@@ -123,7 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   Text(
                     '${products.length} products found',
-                    style: const TextStyle(fontSize: 14, color: Colors.black54),
+                    style: const TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'Bilo'),
                   ),
                 ],
               ),
@@ -187,7 +187,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                         firstWordTitle,
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 16,
+                                          color: Colors.black,
+                                          fontFamily: 'BiloBold',
+                                          fontSize: 18,
                                         ),
                                       ),
                                       const SizedBox(height: 10),
@@ -196,16 +198,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(
-                                          fontSize: 13,
+                                          fontSize: 14,
                                           color: Colors.black87,
+                                          fontFamily: 'Bilo',
                                         ),
                                       ),
                                       const Spacer(),
                                       Text(
                                         "\$${product['price']}",
                                         style: const TextStyle(
-                                          fontSize: 15,
+                                          fontSize: 18,
                                           fontWeight: FontWeight.bold,
+                                          fontFamily: 'BiloBold',
                                         ),
                                       ),
                                     ],
